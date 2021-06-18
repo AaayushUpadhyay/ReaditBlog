@@ -1,0 +1,154 @@
+{% extends "blog/base.html" %}
+{% block content %}
+{% load humanize %}
+
+<section class="ftco-section ftco-degree-bg mx-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 ftco-animate">
+        <p class="mb-5">
+          <img src="{{ article.image.url }}" alt="" class="img-fluid">
+        </p>
+        <h2 class="mb-3">{{ article.title }}</h2>
+        <h6>Written by- {{ article.author }}, {{ article.date_posted|naturaltime}}</h6>
+        {% if article.author == user %}
+        <div>
+          <a href="{% url 'article-update' article.id %}" class="btn btn-primary btn-sm mt-1 mb-1">Update</a>
+          <a href="{% url 'article-delete' article.id %}" class="btn btn-danger btn-sm mt-1 mb-1">Delete</a>
+        </div>
+        {% endif %}
+
+        <p class="my-3">{{ article.content|safe }}</p>
+        {% if user.is_authenticated %}
+        <div class="d-flex">
+          <div class="icon d-flex justify-content-center my-5 ml-5">
+            <a class="mx-3 my-2 btn btn-info" href="{% url 'article-like' article.id %}">Like</a>
+            <div class="number mt-3">
+              {{ article.likes.count }}
+            </div>
+          </div>
+          <div class="icon d-flex justify-content-center my-5 ml-5" style="width: 135px;">
+            <a class="mx-3 my-2 btn btn-danger" href="{% url 'article-dislike' article.id %}">Dislike</a>
+            <div class="number mt-3">
+              {{ article.dislikes.count }}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+    {% if user.is_authenticated %}
+    <div class="pt-5 my-5 mb-5">
+      <form method="POST" action="/comment/">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="comment">Comment</label>
+          <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+        </div>
+        <input type="hidden" name="id" value="{{ article.id }}">
+        <input type="hidden" name="parentSno" value="">
+        <button type="submit" class="btn btn-primary">Post</button>
+      </form>
+    </div>
+
+    <button class="btn btn-outline-info view" onclick="toggle()">View Comments</button>
+    <div class="pt-5 my-5 mb-5 comments" style="display: none;">
+      {% if no == 1 %}
+      <h3 class="mb-5">{{no}} Comment</h3>
+      {% else %}
+      <h3 class="mb-5">{{no}} Comments</h3>
+      {% endif %}
+
+
+      {% for comment in comments %}
+      <div class="row my-5 mx-0">
+        <div class="col-md-1 col-sm-1">
+          <img src="{{comment.user.profile.image.url}}" class="w-100 p-2" alt="">
+          <!-- w-100 se img ki width 100 percent of container of jayegi -->
+        </div>
+        <div class="col-md-11 col-sm-11">
+          <b class="mr-2">{{comment.user.username}},</b><span
+            class="badge badge-info">{{comment.timestamp|naturaltime }}</span>{% if comment.user.username == user.username %}<span
+            class="ml-3"><a href="{% url 'cdelete' comment.id article.id %}"><i
+                class="fas fa-trash btn"></i></a></span>{% endif %}
+          <div>{{comment.content}}</div>
+          <div class="replies mt-2">
+            <button class="btn btn-info btn-sm" type="button" data-toggle="collapse"
+              data-target="#addreply{{comment.id}}" aria-expanded="false" aria-controls="addreply{{comment.id}}">
+              Reply
+            </button>
+            <div class="collapse" id="addreply{{comment.id}}">
+              <div class="card card-body">
+                <form action="/comment/" method="POST">
+                  {% csrf_token %}
+                  <div class="form-group">
+                    <textarea class="form-control" id="comment" name="comment" rows="2"></textarea>
+                  </div>
+                  <input type="hidden" name="parentSno" value="{{comment.id}}">
+                  <input type="hidden" name="id" value="{{ article.id }}">
+                  <button type="submit" class="btn btn-sm btn-info">Submit</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 mx-0">
+
+            
+
+            <button class=" ViewReplies btn btn-sm font-weight-bold" data-toggle="collapse"
+              data-target="#viewreply{{comment.id}}" aria-expanded="false" aria-controls="viewreply{{comment.id}}"
+              style="color: #DA70D6;" onclick="toggle2()">
+              View Replies
+            </button>
+           
+            <div class="collapse" id="viewreply{{comment.id}}">
+              <div class="card card-body">
+              
+                <!-- start -->
+           {% for reply in replies %}
+           {% if reply.parent == comment %}
+                <div class="row my-5 mx-0">
+                  <div class="col-md-1 col-sm-1">
+                    <img src="{{reply.user.profile.image.url}}" class="w-100 p-2"
+                      alt="">
+                    <!-- w-100 se img ki width 100 percent of container of jayegi -->
+                  </div>
+                  <div class="col-md-11 col-sm-11">
+                    <b class="mr-2">{{reply.user.username}}</b><span class="badge badge-info">{{reply.timestamp|naturaltime}}</span>{% if reply.user.username == user.username %}<span
+                    class="ml-3"><a href="{% url 'cdelete' reply.id article.id %}"><i
+                        class="fas fa-trash btn"></i></a></span>{% endif %}
+                    <div>{{reply.content}}</div>
+                  </div>
+                </div>
+               {% endif %}
+               {% endfor %}
+              
+                <!-- end -->
+              </div>
+            </div>
+          </div>
+
+
+
+        </div>
+      </div>
+      {% endfor %}
+      {% else %}
+      <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+          <h4 class="display-6">Log In to post your comments.</h4>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+
+
+
+
+</section>
+
+
+
+{% endblock %}

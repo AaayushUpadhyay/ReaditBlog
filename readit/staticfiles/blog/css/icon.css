@@ -1,0 +1,13 @@
+.icon
+{
+    
+
+            transform: translate(-50%,-50%);
+            padding: 10px;
+            width: 125px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 1.1);
+            border-radius: 50px;
+            background-color: #fafafa;
+            
+      
+}

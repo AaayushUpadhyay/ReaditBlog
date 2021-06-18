@@ -1,0 +1,56 @@
+{% extends "blog/base.html" %}
+
+    
+	  
+{% block content %}
+
+   	<section class="ftco-section bg-light">
+      <div class="container">
+        <div class="row d-flex">
+         
+          
+          
+          {% for article in articles %}
+          <div class="col-md-4 d-flex ftco-animate">
+          	<div class="blog-entry justify-content-end">
+              <a href="{% url 'article-detail' article.id %}" class="block-20" style="background-image: url('{{ article.image.url }}');">
+              </a>
+              <div class="text p-4 float-right d-block">
+              	<div class="topper d-flex align-items-center">
+              		<div class="one py-2 pl-3 pr-1 align-self-stretch">
+              			<span class="day">{{ article.date_posted|date:"d" }}</span>
+              		</div>
+              		<div class="two pl-0 pr-3 py-2 align-self-stretch">
+              			<span class="yr">{{ article.date_posted|date:"F" }}</span>
+              			<span class="mos">{{ article.date_posted|date:"Y" }}</span>
+              		</div>
+              	</div>
+              	<h3 class="heading mb-3"><a href="{% url 'article-detail' article.id %}" >{{ article.title }}</a></h3>
+                <p>{{ article.content|safe|truncatewords:20 }}</p>
+                <p><a href="{% url 'article-detail' article.id %}"  class="btn-custom"><span class="ion-ios-arrow-round-forward mr-3"></span>Read more</a></p>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+
+         
+          
+          
+        </div>
+        <div class="row mt-5 text-center" style="margin-left: 50px;">
+          {% if is_paginated %}
+          <a href="?page=1" class="btn btn-sm btn-success ml-2">First</a>
+          {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+          <a href="?page={{num}}" class="btn btn-sm btn-success ml-2">{{num}}</a>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3'%}
+          <a href="?page={{num}}" class="btn btn-sm btn-outline-success ml-2">{{num}}</a>
+          {% endif %}
+          {% endfor %}
+          <a href="?page={{page_obj.paginator.num_pages}}" class="btn btn-sm btn-success ml-2">Last</a>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+   {% endblock %}
